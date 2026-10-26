@@ -1,0 +1,16 @@
+{
+  "name": "probquest-academy",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-mapped, source-grounded probability learning game",
+  "scripts": {
+    "dev": "python3 -m http.server 5173",
+    "test": "node --test tests/*.test.mjs",
+    "standalone": "python3 scripts/build_standalone.py",
+    "pages": "npm run standalone && python3 scripts/build_pages.py"
+  },
+  "dependencies": {
+    "katex": "^0.19.0"
+  }
+}
