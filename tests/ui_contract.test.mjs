@@ -49,8 +49,9 @@ test('phone layout removes the redundant focus control',()=>{
  assert.match(css,/@media\(max-width:599px\)[\s\S]*?\.lesson-tools\{display:none\}/);
 });
 
-test('answer field uses one focus ring around the compound control',()=>{
- assert.match(css,/\.answer-input-wrap:focus-within\{[^}]*outline:3px solid var\(--focus\);outline-offset:2px/);
+test('answer field focus changes only the compound control border color',()=>{
+ assert.match(css,/\.answer-input-wrap:focus-within\{border-color:var\(--focus\)\}/);
+ assert.doesNotMatch(css,/\.answer-input-wrap:focus-within\{[^}]*outline/);
  assert.match(css,/\.answer-input-wrap input:focus-visible\{outline:none\}/);
 });
 

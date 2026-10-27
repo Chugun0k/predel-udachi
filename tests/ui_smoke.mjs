@@ -89,10 +89,14 @@ try{
  assert.ok(Number(await page.locator('[data-exp="selfP"]').inputValue())<.5,'range value was not committed');
  await page.locator('#advanceExperiment').click();
  const answerInput=page.locator('#answerInput');
+ const answerWrap=page.locator('.answer-input-wrap');
+ const borderBefore=await answerWrap.evaluate(el=>({color:getComputedStyle(el).borderColor,width:getComputedStyle(el).borderWidth}));
  await answerInput.focus();
  assert.equal(await answerInput.evaluate(el=>getComputedStyle(el).outlineStyle),'none','inner answer input has a second focus ring');
- const answerWrap=page.locator('.answer-input-wrap');
- assert.equal(await answerWrap.evaluate(el=>getComputedStyle(el).outlineStyle),'solid','compound answer control has no focus ring');
+ const borderAfter=await answerWrap.evaluate(el=>({color:getComputedStyle(el).borderColor,width:getComputedStyle(el).borderWidth,outline:getComputedStyle(el).outlineStyle}));
+ assert.equal(borderAfter.outline,'none','compound answer control has an extra focus outline');
+ assert.equal(borderAfter.width,borderBefore.width,'answer border thickness changes on focus');
+ assert.notEqual(borderAfter.color,borderBefore.color,'answer border color does not change on focus');
  assert.equal(await answerWrap.evaluate(el=>new Set([getComputedStyle(el).borderTopWidth,getComputedStyle(el).borderRightWidth,getComputedStyle(el).borderBottomWidth,getComputedStyle(el).borderLeftWidth]).size),1,'answer control border is uneven');
  await page.screenshot({path:join(output,'answer-input-dark.png')});
  await page.close();
