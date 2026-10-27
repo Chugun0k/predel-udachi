@@ -6,9 +6,9 @@ const app=readFileSync(new URL('../src/app.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 
-test('art direction, palette and light mode choices are selectable and saved',()=>{
- assert.match(app,/data-art-choice="notebook"/);
- assert.match(app,/data-art-choice="instrument"/);
+test('the unified art direction, palettes and light modes are applied and saved',()=>{
+ assert.doesNotMatch(app,/data-art-choice=/);
+ assert.match(app,/dataset\.art='unified'/);
  for(const palette of ['original','nord','sonokai','biscuit','mountain']){
   assert.match(app,new RegExp(`\\['${palette}'`));
   if(palette!=='original'){
@@ -19,18 +19,33 @@ test('art direction, palette and light mode choices are selectable and saved',()
  for(const theme of ['system','light','dark'])assert.match(app,new RegExp(`\\['${theme}'`));
  assert.match(app,/probquest-appearance-v1/);
  assert.match(index,/prefers-color-scheme: dark/);
+ assert.match(index,/data-art="unified"/);
  assert.match(index,/data-palette="original"/);
- assert.match(css,/html\[data-art="notebook"\]\[data-theme="dark"\]/);
- assert.match(css,/html\[data-art="instrument"\]\[data-theme="dark"\]/);
+ assert.match(css,/html\[data-art="unified"\]\[data-theme="dark"\]/);
+ assert.match(css,/html\[data-art="unified"\]\[data-theme="light"\]\{--canvas:#f4efe4/);
+ assert.match(css,/html\[data-art="unified"\]\[data-theme="dark"\]\{--canvas:#1d211f/);
 });
 
 test('appearance controls cannot collide with root html data attributes',()=>{
  assert.doesNotMatch(app,/closest\('\[data-art\]'\)/);
  assert.doesNotMatch(app,/closest\('\[data-theme\]'\)/);
- assert.match(app,/closest\('button\[data-art-choice\]'\)/);
+ assert.doesNotMatch(app,/closest\('button\[data-art-choice\]'\)/);
  assert.match(app,/closest\('button\[data-theme-choice\]'\)/);
  assert.match(app,/closest\('button\[data-palette-choice\]'\)/);
  assert.doesNotMatch(app,/documentElement\.dataset\.themeChoice/);
+});
+
+test('range controls keep their node while dragging and refresh on commit',()=>{
+ assert.match(app,/addEventListener\('input',e=>updateExperimentControl\(e\.currentTarget\)\)/);
+ assert.match(app,/addEventListener\('change',e=>\{updateExperimentControl\(e\.currentTarget\);refreshExperiment\(mode\)\}\)/);
+ assert.match(css,/\*,\*::before,\*::after\{border-radius:0!important\}/);
+ assert.match(css,/\.sim-metrics \.equal\{background:var\(--success-bg\)/);
+});
+
+test('course map has one responsive launcher outside the drawer',()=>{
+ assert.doesNotMatch(app,/class="map-toggle"/);
+ assert.match(css,/html\[data-art="unified"\] \.map-launch,html\[data-art="unified"\] \.map-close\{display:none\}/);
+ assert.match(css,/body\.focus-mode \.map-launch,body\.focus-mode\.map-open \.map-close\{display:inline-flex\}/);
 });
 
 test('added palette text and controls meet WCAG AA contrast',()=>{
@@ -44,7 +59,7 @@ test('added palette text and controls meet WCAG AA contrast',()=>{
   const body=css.match(new RegExp(`${selector.replaceAll('[','\\[').replaceAll(']','\\]')}\\{([^}]*)\\}`))?.[1];
   assert.ok(body,selector);
   const tokens=Object.fromEntries([...body.matchAll(/--([\w-]+):(#[0-9a-f]{6})/gi)].map(match=>[match[1],match[2]]));
-  for(const [foreground,background] of [['text','surface'],['text-muted','surface'],['primary','surface'],['on-primary','primary']]){
+  for(const [foreground,background] of [['text','surface'],['text-muted','surface'],['primary','surface'],['on-primary','primary'],['text','success-bg'],['text','error-bg']]){
    assert.ok(contrast(tokens[foreground],tokens[background])>=4.5,`${selector} ${foreground}/${background}`);
   }
  }

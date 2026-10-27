@@ -3,7 +3,14 @@ from playwright.sync_api import sync_playwright
 R=Path(__file__).resolve().parent.parent
 html=(R/'play.html').read_text()
 with sync_playwright() as p:
- browser=p.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
+ candidates=[Path('/usr/bin/chromium'),Path('/usr/bin/chromium-browser'),Path('/opt/vivaldi/vivaldi-bin')]
+ executable=next((path for path in candidates if path.exists()),None)
+ if executable is None:
+  raise RuntimeError('Install Chromium or Vivaldi to run the browser smoke test')
+ args=['--no-sandbox']
+ if 'vivaldi' in str(executable):
+  args.extend(['--disable-gpu','--disable-vivaldi','--disable-extensions'])
+ browser=p.chromium.launch(headless=True,executable_path=str(executable),args=args)
  page=browser.new_page(viewport={'width':1470,'height':1050},device_scale_factor=1)
  errors=[]
  page.on('pageerror',lambda e:errors.append(str(e)))
@@ -15,20 +22,21 @@ with sync_playwright() as p:
  assert '/90' in page.locator('.progress-number').inner_text().replace(' ','')
  assert page.locator('.quest').count()==10
  assert page.locator('.theory-example').count()==3
+ assert not page.locator('.map-launch').is_visible()
  page.locator('[data-focus]').click()
  assert 'focus-mode' in page.locator('body').get_attribute('class')
+ assert page.locator('.map-launch').is_visible()
  page.locator('.map-launch').click()
  assert 'map-open' in page.locator('body').get_attribute('class')
  page.locator('.focus-map-close').click()
  page.locator('[data-focus]').click()
  page.locator('.settings > summary').click()
- page.locator('[data-art-choice="instrument"]').click()
- assert page.locator('html').get_attribute('data-art')=='instrument'
+ assert page.locator('html').get_attribute('data-art')=='unified'
+ assert page.locator('[data-art-choice]').count()==0
  page.locator('[data-palette-choice="nord"]').click()
  assert page.locator('html').get_attribute('data-palette')=='nord'
  page.locator('[data-theme-choice="dark"]').click()
  assert page.locator('html').get_attribute('data-theme')=='dark'
- page.locator('[data-art-choice="notebook"]').click()
  page.locator('[data-theme-choice="light"]').click()
  page.screenshot(path=str(R/'docs/desktop_preview.png'),full_page=True)
  def answer(text):
@@ -38,7 +46,17 @@ with sync_playwright() as p:
   page.locator('[data-advance]').click()
  page.locator('[data-advance]').click()
  page.locator('[data-predict="edges"]').click()
- page.locator('[data-exp="selfP"]').fill('0')
+ slider=page.locator('[data-exp="selfP"]')
+ slider.scroll_into_view_if_needed()
+ slider.evaluate("el => el.dataset.dragIdentity='kept'")
+ box=slider.bounding_box()
+ page.mouse.move(box['x']+box['width']*.8,box['y']+box['height']/2)
+ page.mouse.down()
+ page.mouse.move(box['x']+box['width']*.2,box['y']+box['height']/2,steps=8)
+ page.mouse.up()
+ assert float(slider.input_value()) < .5
+ assert slider.get_attribute('data-drag-identity')=='kept'
+ slider.fill('0')
  page.locator('[data-advance]').click()
  answer('E');answer('p=p^2');answer('0;1')
  for group,ids in [('onlyIf',['n1','n2','n3','n4']),('if',['s1','s2','s3'])]:
@@ -176,6 +194,10 @@ with sync_playwright() as p:
  mobile.evaluate('''() => {let data={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>data[k]||null,setItem:(k,v)=>{data[k]=v}}})}''')
  mobile.evaluate("""() => localStorage.setItem('probquest-academy-v2', JSON.stringify({version:2,xp:40,lastActive:'S09-Q11',dayCompletions:{},lessons:{'S09-Q11':{index:4,doneSteps:[0,1,2,3],attempts:0,hintsUsed:0,completedAt:null}}}))""")
  mobile.set_content(html)
+ assert mobile.locator('.map-launch').is_visible()
+ mobile.locator('.map-launch').click()
+ assert 'map-open' in mobile.locator('body').get_attribute('class')
+ mobile.locator('.focus-map-close').click()
  mobile.screenshot(path=str(R/'docs/mobile_preview.png'),full_page=True)
  over=mobile.evaluate('document.documentElement.scrollWidth - window.innerWidth')
  print('MOBILE HORIZONTAL OVERFLOW',over)

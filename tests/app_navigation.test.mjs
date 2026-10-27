@@ -56,8 +56,7 @@ test('the primary transition button advances from theory to experiment',async()=
  assert.match(storage.get('probquest-appearance-v1'),/"palette":"nord"/);
  listeners.click({target:{closest(selector){return selector==='button[data-theme-choice]'?{dataset:{themeChoice:'dark'},closest(){return null}}:null}}});
  assert.equal(document.documentElement.dataset.theme,'dark');
- listeners.click({target:{closest(selector){return selector==='button[data-art-choice]'?{dataset:{artChoice:'instrument'},closest(){return null}}:null}}});
- assert.equal(document.documentElement.dataset.art,'instrument');
+ assert.equal(document.documentElement.dataset.art,'unified');
  listeners.click({target:{closest(selector){return selector==='[data-map-toggle]'?{}:null}}});
  assert.equal(classes.has('map-open'),true);
 });
