@@ -36,10 +36,17 @@ test('appearance controls cannot collide with root html data attributes',()=>{
 });
 
 test('range controls keep their node while dragging and refresh on commit',()=>{
- assert.match(app,/addEventListener\('input',e=>updateExperimentControl\(e\.currentTarget\)\)/);
+ assert.match(app,/addEventListener\('input',e=>\{updateExperimentControl\(e\.currentTarget\);liveRefreshExperiment\(mode\)\}\)/);
  assert.match(app,/addEventListener\('change',e=>\{updateExperimentControl\(e\.currentTarget\);refreshExperiment\(mode\)\}\)/);
+ assert.match(app,/function syncExperimentNode/);
+ assert.match(app,/const keepRange=current\.matches\('\[data-exp\]'\)/);
  assert.match(css,/\*,\*::before,\*::after\{border-radius:0!important\}/);
  assert.match(css,/\.sim-metrics \.equal\{background:var\(--success-bg\)/);
+});
+
+test('phone layout removes the redundant focus control',()=>{
+ assert.match(app,/class="focus-toggle" data-focus="1"/);
+ assert.match(css,/@media\(max-width:599px\)[\s\S]*?\.lesson-tools\{display:none\}/);
 });
 
 test('course map has one responsive launcher outside the drawer',()=>{

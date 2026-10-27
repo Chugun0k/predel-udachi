@@ -49,6 +49,7 @@ try{
    const page=await openAt(width,height,theme);
    const mapButton=page.locator('.map-launch');
    assert.equal(await mapButton.isVisible(),width<1024,`${width}px map button visibility`);
+   assert.equal(await page.locator('[data-focus]').isVisible(),width>599,`${width}px focus button visibility`);
    assert.equal(await page.locator('[data-map-toggle]').evaluateAll(elements=>elements.filter(element=>element.checkVisibility()).length),width<1024?1:0,`${width}px duplicate map controls`);
    if(width<1024){
     await mapButton.click();
@@ -73,14 +74,17 @@ try{
  await page.locator('[data-predict="edges"]').click();
  const slider=page.locator('[data-exp="selfP"]');
  await slider.scrollIntoViewIfNeeded();
- await slider.evaluate(el=>el.dataset.dragIdentity='kept');
+ await slider.evaluate(el=>window.__draggedRange=el);
+ const label=page.locator('label[for="selfRange"]');
+ const labelBefore=await label.textContent();
  const box=await slider.boundingBox();
  assert.ok(box);
  await page.mouse.move(box.x+box.width*.8,box.y+box.height/2);
  await page.mouse.down();
  await page.mouse.move(box.x+box.width*.2,box.y+box.height/2,{steps:8});
- assert.equal(await slider.getAttribute('data-drag-identity'),'kept','range node was replaced while dragging');
+ assert.equal(await slider.evaluate(el=>el===window.__draggedRange),true,'range node was replaced while dragging');
  assert.ok(Number(await slider.inputValue())<.5,'range value did not follow pointer drag');
+ assert.notEqual(await label.textContent(),labelBefore,'activity output did not update while dragging');
  await page.mouse.up();
  assert.ok(Number(await page.locator('[data-exp="selfP"]').inputValue())<.5,'range value was not committed');
  await page.close();
