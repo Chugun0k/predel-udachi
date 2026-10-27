@@ -49,6 +49,11 @@ test('phone layout removes the redundant focus control',()=>{
  assert.match(css,/@media\(max-width:599px\)[\s\S]*?\.lesson-tools\{display:none\}/);
 });
 
+test('answer field uses one focus ring around the compound control',()=>{
+ assert.match(css,/\.answer-input-wrap:focus-within\{[^}]*outline:3px solid var\(--focus\);outline-offset:2px/);
+ assert.match(css,/\.answer-input-wrap input:focus-visible\{outline:none\}/);
+});
+
 test('course map has one responsive launcher outside the drawer',()=>{
  assert.doesNotMatch(app,/class="map-toggle"/);
  assert.match(css,/html\[data-art="unified"\] \.map-launch,html\[data-art="unified"\] \.map-close\{display:none\}/);

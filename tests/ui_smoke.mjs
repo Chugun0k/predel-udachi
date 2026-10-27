@@ -87,7 +87,29 @@ try{
  assert.notEqual(await label.textContent(),labelBefore,'activity output did not update while dragging');
  await page.mouse.up();
  assert.ok(Number(await page.locator('[data-exp="selfP"]').inputValue())<.5,'range value was not committed');
+ await page.locator('#advanceExperiment').click();
+ const answerInput=page.locator('#answerInput');
+ await answerInput.focus();
+ assert.equal(await answerInput.evaluate(el=>getComputedStyle(el).outlineStyle),'none','inner answer input has a second focus ring');
+ const answerWrap=page.locator('.answer-input-wrap');
+ assert.equal(await answerWrap.evaluate(el=>getComputedStyle(el).outlineStyle),'solid','compound answer control has no focus ring');
+ assert.equal(await answerWrap.evaluate(el=>new Set([getComputedStyle(el).borderTopWidth,getComputedStyle(el).borderRightWidth,getComputedStyle(el).borderBottomWidth,getComputedStyle(el).borderLeftWidth]).size),1,'answer control border is uneven');
+ await page.screenshot({path:join(output,'answer-input-dark.png')});
  await page.close();
+
+ const phone=await openAt(390,844,'dark');
+ await phone.locator('[data-advance]').click();
+ await phone.locator('[data-predict="edges"]').click();
+ await phone.locator('[data-exp="selfP"]').fill('0');
+ await phone.locator('#advanceExperiment').click();
+ const phoneInput=phone.locator('#answerInput');
+ await phoneInput.focus();
+ const phoneWrap=phone.locator('.answer-input-wrap');
+ const phoneBox=await phoneWrap.boundingBox();
+ assert.ok(phoneBox&&phoneBox.x>=0&&phoneBox.x+phoneBox.width<=390,'phone answer control is clipped');
+ assert.equal(await phoneInput.evaluate(el=>getComputedStyle(el).outlineStyle),'none');
+ await phone.screenshot({path:join(output,'answer-input-phone-dark.png')});
+ await phone.close();
  console.log(`UI smoke passed; screenshots: ${output}`);
 }finally{
  await browser.close();
