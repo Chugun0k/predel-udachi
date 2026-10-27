@@ -25,13 +25,14 @@ const browser=await chromium.launch({
 });
 const output=join(tmpdir(),'predel-udachi-ui-smoke');
 await mkdir(output,{recursive:true});
-const appUrl=pathToFileURL(join(process.cwd(),'play.html')).href;
+const appUrl=process.env.UI_SMOKE_URL||pathToFileURL(join(process.cwd(),'play.html')).href;
+const querySeparator=appUrl.includes('?')?'&':'?';
 
 async function openAt(width,height,theme){
  const page=await browser.newPage({viewport:{width,height}});
  const errors=[];
  page.on('pageerror',error=>errors.push(String(error)));
- await page.goto(`${appUrl}?task=S01-Q01&theme=${theme}`,{waitUntil:'domcontentloaded'});
+ await page.goto(`${appUrl}${querySeparator}task=S01-Q01&theme=${theme}`,{waitUntil:'domcontentloaded'});
  await page.locator('#lessonPane').waitFor();
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),0,`${width}px overflow`);
  assert.equal(await page.locator('[data-art-choice]').count(),0,'legacy A/B controls');
