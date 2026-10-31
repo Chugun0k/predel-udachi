@@ -28,16 +28,18 @@ await mkdir(output,{recursive:true});
 const appUrl=process.env.UI_SMOKE_URL||pathToFileURL(join(process.cwd(),'play.html')).href;
 const querySeparator=appUrl.includes('?')?'&':'?';
 
-async function openAt(width,height,theme){
+async function openAt(width,height,theme,task='S01-Q01'){
  const page=await browser.newPage({viewport:{width,height}});
  const errors=[];
  page.on('pageerror',error=>errors.push(String(error)));
- await page.goto(`${appUrl}${querySeparator}task=S01-Q01&theme=${theme}`,{waitUntil:'domcontentloaded'});
+ await page.goto(`${appUrl}${querySeparator}task=${task}&theme=${theme}`,{waitUntil:'domcontentloaded'});
  await page.locator('#lessonPane').waitFor();
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),0,`${width}px overflow`);
  assert.equal(await page.locator('[data-art-choice]').count(),0,'legacy A/B controls');
  assert.equal(await page.locator('html').getAttribute('data-art'),'unified');
  assert.equal(await page.locator('.lesson-pane').evaluate(el=>getComputedStyle(el).borderRadius),'0px');
+ assert.notEqual(await page.locator('.math-plate').evaluate(el=>getComputedStyle(el).scrollbarColor),'auto',`${width}px themed formula scrollbar`);
+ assert.deepEqual(await page.locator('.math-plate').evaluate(el=>({width:getComputedStyle(el,'::-webkit-scrollbar').height,track:getComputedStyle(el,'::-webkit-scrollbar-track').backgroundColor,radius:getComputedStyle(el,'::-webkit-scrollbar-thumb').borderRadius})),{width:'10px',track:'rgba(0, 0, 0, 0)',radius:'999px'},`${width}px polished scrollbar geometry`);
  assert.deepEqual(errors,[]);
  return page;
 }
@@ -71,6 +73,9 @@ try{
 
  const page=await openAt(1440,960,'dark');
  await page.locator('[data-advance]').click();
+ assert.notEqual(await page.locator('.experiment-card').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(248, 246, 239)','experiment kept its light-only surface');
+ assert.notEqual(await page.locator('.sim-metrics>div').first().evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)','metric kept its light-only surface');
+ assert.notEqual(await page.locator('.sim-svg [stroke="#4258d4"]').evaluate(el=>getComputedStyle(el).stroke),'rgb(66, 88, 212)','SVG kept its light-only stroke');
  await page.locator('[data-predict="edges"]').click();
  const slider=page.locator('[data-exp="selfP"]');
  await slider.scrollIntoViewIfNeeded();
@@ -98,8 +103,55 @@ try{
  assert.equal(borderAfter.width,borderBefore.width,'answer border thickness changes on focus');
  assert.notEqual(borderAfter.color,borderBefore.color,'answer border color does not change on focus');
  assert.equal(await answerWrap.evaluate(el=>new Set([getComputedStyle(el).borderTopWidth,getComputedStyle(el).borderRightWidth,getComputedStyle(el).borderBottomWidth,getComputedStyle(el).borderLeftWidth]).size),1,'answer control border is uneven');
- await page.screenshot({path:join(output,'answer-input-dark.png')});
+ const xpBeforeSurrender=await page.locator('.level-stat strong').textContent();
+ await page.locator('[data-surrender]').click();
+ assert.equal(await answerInput.inputValue(),'E','surrender does not reveal the expected answer');
+ assert.equal(await answerInput.getAttribute('readonly'),'','revealed answer remains editable');
+ assert.match(await page.locator('.feedback.surrendered').textContent(),/не засчитывает шаг/);
+ assert.equal(await page.locator('.level-stat strong').textContent(),xpBeforeSurrender,'surrender awarded XP');
+ assert.equal(await page.locator('#toast').count(),0,'stale XP toast conflicts with surrender feedback');
+ await page.screenshot({path:join(output,'surrender-dark.png')});
+ await page.locator('[data-retry]').click();
+ assert.equal(await page.locator('#answerInput').inputValue(),'','retry did not clear the revealed answer');
+ assert.equal(await page.locator('#answerInput').getAttribute('readonly'),null,'retry kept the field readonly');
  await page.close();
+
+ const proofPage=await openAt(1440,960,'dark','S03-Q02');
+ await proofPage.evaluate(()=>localStorage.setItem('probquest-academy-v2',JSON.stringify({
+  version:2,xp:40,lastActive:'S03-Q02',dayCompletions:{},
+  lessons:{'S03-Q02':{index:4,doneSteps:[0,1,2,3],attempts:0,hintsUsed:0,completedAt:null}}
+ })));
+ await proofPage.reload({waitUntil:'domcontentloaded'});
+ await proofPage.locator('[data-proof-draft]').first().waitFor();
+ assert.equal(await proofPage.locator('.proof-workbook-section').count(),2);
+ assert.equal(await proofPage.locator('[data-proof-add]').count(),0,'legacy ordering UI returned');
+ assert.notEqual(await proofPage.locator('[data-proof-draft]').first().evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)','proof draft kept a light-only surface');
+ for(const draft of await proofPage.locator('[data-proof-draft]').all())await draft.fill('Записываю исходную опору, логический переход и вывод своими словами.');
+ await proofPage.locator('[data-proof-review]').click();
+ assert.equal(await proofPage.locator('[data-proof-criterion]').count(),6);
+ for(const criterion of await proofPage.locator('[data-proof-criterion]').all())await criterion.click();
+ await proofPage.locator('[data-check]').click();
+ assert.match(await proofPage.locator('.feedback.success').textContent(),/Самопроверка завершена/);
+ await proofPage.screenshot({path:join(output,'proof-workbook-dark.png'),fullPage:true});
+ await proofPage.setViewportSize({width:390,height:844});
+ assert.equal(await proofPage.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),0,'proof worksheet phone overflow');
+ await proofPage.screenshot({path:join(output,'proof-workbook-phone-dark.png'),fullPage:true});
+ await proofPage.close();
+
+ const tablePage=await openAt(1440,960,'dark','S05-Q01');
+ await tablePage.locator('.source-context summary').click();
+ const sourceScroll=tablePage.locator('.source-table-scroll');
+ await sourceScroll.waitFor();
+ assert.notEqual(await sourceScroll.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)','source table kept its light-only surface');
+ assert.notEqual(await sourceScroll.evaluate(el=>getComputedStyle(el).scrollbarColor),'auto','source table lost its themed scrollbar');
+ assert.deepEqual(await tablePage.locator('.source-data-table td').first().evaluate(el=>[getComputedStyle(el).borderRightStyle,getComputedStyle(el).borderBottomStyle]),['solid','solid'],'source table cell grid disappeared');
+ await tablePage.screenshot({path:join(output,'source-table-dark.png'),fullPage:true});
+ await tablePage.setViewportSize({width:390,height:844});
+ await sourceScroll.scrollIntoViewIfNeeded();
+ await sourceScroll.hover();
+ assert.ok(await sourceScroll.evaluate(el=>el.scrollWidth>el.clientWidth),'mobile source table does not exercise horizontal scrolling');
+ await sourceScroll.screenshot({path:join(output,'scrollbar-phone-dark.png')});
+ await tablePage.close();
 
  const phone=await openAt(390,844,'dark');
  await phone.locator('[data-advance]').click();

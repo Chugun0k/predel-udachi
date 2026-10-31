@@ -59,16 +59,17 @@ with sync_playwright() as p:
  slider.fill('0')
  page.locator('[data-advance]').click()
  answer('E');answer('p=p^2');answer('0;1')
- for group,ids in [('onlyIf',['n1','n2','n3','n4']),('if',['s1','s2','s3'])]:
-  for card in ids:page.locator(f'[data-proof-add="{group}"][data-proof-card="{card}"]').click()
+ for draft in page.locator('[data-proof-draft]').all():draft.fill('Моё доказательство: исходная опора, переход и вывод.')
+ page.locator('[data-proof-review]').click()
+ for criterion in page.locator('[data-proof-criterion]').all():criterion.click()
  page.locator('[data-check]').click()
- assert 'опорных шагов' in page.locator('.feedback.success').inner_text()
+ assert 'Самопроверка завершена' in page.locator('.feedback.success').inner_text()
  page.locator('[data-advance]').click()
  assert 'ЗАДАНИЕ ОСВОЕНО' in page.locator('#lessonPane').inner_text()
  assert '1/90' in page.locator('.progress-number').inner_text().replace(' ','')
  xp_after_q1=page.locator('.level-stat strong').inner_text()
  page.locator('[data-step-back="5"]').click()
- assert page.locator('.proof-lane').count()==2
+ assert page.locator('.proof-workbook-section').count()==2
  page.locator('[data-step-back="0"]').click()
  assert 'Что означает независимость' in page.locator('#lessonPane').inner_text()
  assert page.locator('[data-step-return]').count()==1

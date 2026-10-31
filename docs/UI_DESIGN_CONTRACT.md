@@ -464,7 +464,7 @@ Loading skeleton не требуется для синхронно встрое�
 
 ### Этап 4. Сложные типы контента
 
-- Proof builder: keyboard order, remove/reorder, error localization.
+- Proof worksheet: written argument first, then an ordered reference structure and an explicit self-check. Do not present proof as card-order guessing; keyboard users must be able to write, reveal and mark every criterion.
 - Source tables и длинные формулы: internal scroll, captions, zoom.
 - Интерактивные SVG: token colors, text summary, keyboard controls.
 - Needs-authoring/external dependency/victory/practice states.

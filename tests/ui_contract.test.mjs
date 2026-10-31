@@ -102,6 +102,41 @@ test('mathematics and focus mode use theme tokens',()=>{
  assert.match(css,/\.step-dot\.now\.cleared\{/);
 });
 
+test('proof finals use written self-review instead of card-order guessing',()=>{
+ assert.doesNotMatch(app,/data-proof-add|data-proof-remove/);
+ assert.match(app,/data-proof-draft/);
+ assert.match(app,/data-proof-review/);
+ assert.match(app,/data-proof-criterion/);
+ assert.match(app,/data-surrender/);
+ assert.match(app,/data-retry/);
+ assert.match(app,/Этот просмотр не засчитывает шаг и не приносит XP/);
+});
+
+test('wide learning regions expose themed scrollbars and keyboard access',()=>{
+ assert.match(app,/class="math-plate horizontal-scroll-region" tabindex="0" role="region"/);
+ assert.match(app,/class="source-table-scroll" tabindex="0" role="region"/);
+ assert.match(app,/continuity-layers horizontal-scroll-region" tabindex="0"/);
+ assert.match(app,/c3-axis horizontal-scroll-region" tabindex="0"/);
+ assert.match(css,/--scrollbar-track:/);
+ assert.match(css,/--scrollbar-thumb-hover:/);
+ assert.match(css,/--scrollbar-thumb-active:/);
+ assert.match(css,/scrollbar-color:var\(--scrollbar-thumb\) var\(--scrollbar-track\)/);
+ assert.match(css,/scrollbar-width:thin/);
+ assert.match(css,/::-webkit-scrollbar\{height:10px;background:transparent\}/);
+ assert.match(css,/::-webkit-scrollbar-thumb\{min-width:48px/);
+ assert.match(css,/border-radius:999px!important/);
+ assert.match(css,/:hover::-webkit-scrollbar-thumb\{background-color:var\(--scrollbar-thumb-hover\)\}/);
+ assert.match(css,/::-webkit-scrollbar-thumb:active\{background-color:var\(--scrollbar-thumb-active\)\}/);
+});
+
+test('activity surfaces are mapped to semantic theme tokens',()=>{
+ for(const token of ['--viz-primary-soft','--viz-warning-soft','--viz-success-soft','--viz-error-soft'])assert.match(css,new RegExp(token));
+ assert.match(css,/\.dice-lab>div,[\s\S]*?background:var\(--surface-raised\)/);
+ assert.match(css,/\.atom-circle\.a\{background:var\(--viz-primary-soft\)\}/);
+ assert.match(css,/\.source-data-table\{color:var\(--text\)\}/);
+ assert.match(css,/\.proof-workbook textarea\{[\s\S]*?background:var\(--surface-raised\)/);
+});
+
 test('bundled Cyrillic font assets exist for offline standalone builds',()=>{
  for(const file of ['NotoSans-Regular.ttf','NotoSans-Bold.ttf','NotoSerif-Regular.ttf','NotoSerif-Bold.ttf']){
   assert.equal(existsSync(new URL(`../src/fonts/${file}`,import.meta.url)),true,file);

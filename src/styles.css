@@ -246,3 +246,97 @@ input[type="range"]::-moz-range-thumb{border-radius:0!important}
 .sim-metrics .equal b{color:var(--success)}.sim-metrics .equal small{color:var(--text)}
 .sim-metrics .invalid{background:var(--error-bg);border-color:var(--error);color:var(--text)}
 .sim-metrics .invalid b{color:var(--error)}.sim-metrics .invalid small{color:var(--text)}
+
+/* Theme-safe activity palette: every teaching component follows semantic tokens. */
+html[data-art="unified"]{
+ --viz-primary-soft:color-mix(in srgb,var(--primary) 16%,var(--surface-raised));
+ --viz-warning-soft:color-mix(in srgb,var(--warning) 16%,var(--surface-raised));
+ --viz-success-soft:color-mix(in srgb,var(--success) 16%,var(--surface-raised));
+ --viz-error-soft:color-mix(in srgb,var(--error) 16%,var(--surface-raised));
+ --scrollbar-track:transparent;
+ --scrollbar-thumb:color-mix(in srgb,var(--text-muted) 62%,var(--surface-raised));
+ --scrollbar-thumb-hover:color-mix(in srgb,var(--primary) 58%,var(--text-muted));
+ --scrollbar-thumb-active:var(--primary);
+}
+
+.dice-lab>div,.permutation-board>div,.suit-counts>div,.event-probabilities>div,
+.outcome-grid span,.heads-row span,.branch-compare>div,.coin-layers>div,.bag-cells>div,
+.c3-table span,.c3-grid span,.c3-blocks>div,.c3-filters span,.c3-balance span,
+.urn-inventory>div,.urn-draw,.urn-actions>div{
+ background:var(--surface-raised);border-color:var(--border);color:var(--text)
+}
+.dice-face,.permutation-board span,.permutation-board b,.intersection-table span,
+.c3-axis span,.dice-values span,.bipartite-nodes span,.c4-cells span{
+ background:var(--viz-primary-soft);border-color:var(--primary);color:var(--text)
+}
+.atom-circle{border-color:var(--primary);color:var(--text)}
+.atom-circle.a{background:var(--viz-primary-soft)}.atom-circle.b{background:var(--viz-warning-soft)}.atom-circle.c{background:var(--viz-success-soft)}
+.atom-visual>span{color:var(--text)}
+.dice-face,.event-probabilities b,.branch-compare strong,.c3-balance span b,.c4-lab-title{color:var(--primary)}
+.permutation-board>div.fixed,.heads-row span.head{background:var(--warning-bg);border-color:var(--warning);color:var(--text)}
+.pass,.meeting-indicator.pass,.urn-draw.success,.outcome-grid span.hit,.c3-table span.hit,.c3-grid span.hit,.c3-balance span.hit,.bit-states span{
+ background:var(--success-bg);border-color:var(--success);color:var(--text)
+}
+.fail,.meeting-indicator.fail,.urn-draw.miss,.atom-metrics .invalid,.lab-metrics .invalid,.bit-states span.forbidden{
+ background:var(--error-bg);border-color:var(--error);color:var(--text)
+}
+.permutation-board small,.suit-counts small,.event-probabilities small,.c3-table small,.urn-draw p,.urn-actions>div small{color:var(--text-muted)}
+.experiment-action .danger,.suit-counts .red b{color:var(--error)}
+.experiment-action .safe{color:var(--success)}
+.colored-teal{color:var(--success)}.colored-peach,.c3-filters b,.c3-balance em,.bipartite-nodes i{color:var(--warning)}
+.vertical-meter .cool,.recurrence-bars i,.c3-blocks i,.c3-cdf i{background:var(--primary)}
+.vertical-meter .warm,.c3-cdf i+i{background:var(--warning)}
+.bars,.recurrence-bars{border-color:var(--border)}
+.profile-tabs button{background:var(--surface-raised);border-color:var(--border);color:var(--text)}
+.profile-tabs button.picked{background:var(--viz-primary-soft);border-color:var(--primary);color:var(--primary)}
+.family-strip{background:var(--surface-muted)}.family-strip span{background:var(--primary);color:var(--on-primary)}.family-strip span+span{background:var(--warning);color:var(--surface)}
+.continuity-layers>div{background:var(--viz-primary-soft);border-color:var(--primary);color:var(--text)}
+.node-ring{border-color:var(--border)}.node-ring span{background:var(--primary);color:var(--on-primary)}
+.mixture-bar span{background:var(--warning);color:var(--surface)}.mixture-bar span+span{background:var(--success);color:var(--surface)}
+.c3-axis{border-color:var(--primary)}.c3-path line{stroke:var(--border)}.c3-path polyline{stroke:var(--primary)}.c3-path polyline.reflected{stroke:var(--warning)}
+.source-data-table .table-unknown{background:var(--warning-bg);color:var(--warning)}
+.math-fallback,.math-error{color:var(--error)}
+
+/* Inline SVG charts use the same theme tokens instead of light-only paint. */
+.sim-svg text{fill:var(--text-muted)}
+.sim-svg [stroke="#c1b9a9"],.sim-svg [stroke="#bdb7aa"],.sim-svg [stroke="#9e8f84"]{stroke:var(--border)}
+.sim-svg [stroke="#4056e0"],.sim-svg [stroke="#243baa"],.sim-svg [stroke="#3444b4"],.sim-svg [stroke="#4258d4"]{stroke:var(--primary)}
+.sim-svg [fill="#4258d4"]{fill:var(--primary)}
+.sim-svg [stroke="#f39b4e"],.sim-svg [stroke="#e9974d"]{stroke:var(--warning)}
+.sim-svg [fill="#ffd268"],.sim-svg [fill="#e9974d"]{fill:var(--warning)}
+.sim-svg [fill="#ffd4b7"]{fill:var(--warning-bg)}
+.sim-svg [fill="#72d6c4"],.sim-svg [fill="#1d7775"]{fill:var(--success)}
+.sim-svg [stroke="#197b7b"]{stroke:var(--success)}
+.sim-svg [fill="#e76c5c"]{fill:var(--error)}
+.sim-svg [stroke="white"]{stroke:var(--surface-raised)}
+
+/* Visible, theme-aware horizontal scroll affordance for formulas and labs. */
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis){
+ scrollbar-width:thin;scrollbar-color:var(--scrollbar-thumb) var(--scrollbar-track);overscroll-behavior-inline:contain;touch-action:pan-x pan-y
+}
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar{height:10px;background:transparent}
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar-track{background:transparent}
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar-thumb{min-width:48px;background:var(--scrollbar-thumb);background-clip:padding-box;border:2px solid transparent;border-radius:999px!important}
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis):hover::-webkit-scrollbar-thumb{background-color:var(--scrollbar-thumb-hover)}
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar-thumb:active{background-color:var(--scrollbar-thumb-active)}
+:where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar-corner{background:transparent}
+:where(.horizontal-scroll-region,.source-table-scroll):focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+/* Proof worksheet replaces order guessing with explicit writing and self-review. */
+.proof-workbook{display:grid;gap:22px}
+.proof-instructions{padding:16px;border-left:4px solid var(--primary);background:var(--surface-muted);color:var(--text)}
+.proof-instructions b{font-size:16px}.proof-instructions ol{margin:8px 0 0;padding-left:22px}.proof-instructions li{margin:4px 0;font-size:15px;line-height:1.55}
+.proof-workbook-section{display:grid;gap:10px;padding:20px 0;border-top:1px solid var(--border)}
+.proof-section-heading{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start}.proof-section-heading>span{display:grid;place-items:center;width:32px;height:32px;background:var(--primary);color:var(--on-primary);font-weight:700}.proof-section-heading h4{margin:2px 0 3px;font-size:18px}.proof-section-heading p{margin:0;color:var(--text-muted);font-size:14px;line-height:1.5}
+.proof-workbook-section>label{font-size:15px;font-weight:700}
+.proof-workbook textarea{width:100%;min-height:116px;resize:vertical;padding:12px 14px;background:var(--surface-raised);border:2px solid var(--border);color:var(--text);font:16px/1.55 "Noto Local",sans-serif}
+.proof-workbook textarea:focus{border-color:var(--focus);outline:none}.proof-workbook textarea[readonly]{background:var(--surface-muted)}
+.proof-reference{display:grid;gap:8px;margin-top:6px;padding:16px;background:var(--surface-muted);border-left:4px solid var(--primary)}.proof-reference>p{margin:0;color:var(--text-muted);font-size:14px}
+.proof-criteria{display:grid;gap:8px;margin-top:4px}.proof-criteria button{min-height:52px;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;width:100%;padding:10px;text-align:left;background:var(--surface-raised);border:1px solid var(--border);color:var(--text);font-size:15px;line-height:1.5}.proof-criteria button[aria-pressed="true"]{border-color:var(--success);background:var(--success-bg)}
+.criterion-mark{display:grid;place-items:center;width:28px;height:28px;background:var(--surface-muted);border:1px solid var(--border);color:var(--text-muted);font-size:13px}.proof-criteria button[aria-pressed="true"] .criterion-mark{background:var(--success);border-color:var(--success);color:var(--surface)}.criterion-mark .icon{width:16px;height:16px}
+.btn-surrender{min-height:44px;padding:10px 16px;background:transparent;border:1px solid var(--error);color:var(--error);font:700 15px/1.2 "Noto Local",sans-serif}.btn-surrender:hover{background:var(--error-bg)}
+.feedback.surrendered{background:var(--warning-bg);border-color:var(--warning);color:var(--text)}
+
+@media(max-width:599px){
+ .proof-instructions,.proof-reference{padding:14px 12px}.proof-workbook-section{padding:16px 0}.proof-section-heading{grid-template-columns:32px 1fr}.proof-criteria button{grid-template-columns:28px 1fr;padding:9px 8px}
+}
