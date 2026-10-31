@@ -237,8 +237,6 @@ html[data-art="unified"] .read-card{border-left:4px solid var(--primary);padding
 
 /* One square geometry across controls, surfaces and activity graphics. */
 *,*::before,*::after{border-radius:0!important}
-input[type="range"]::-webkit-slider-thumb{border-radius:0!important}
-input[type="range"]::-moz-range-thumb{border-radius:0!important}
 
 /* Semantic activity states must remain legible in every palette and theme. */
 .sim-metrics b{color:var(--primary)}
@@ -321,6 +319,22 @@ html[data-art="unified"]{
 :where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar-thumb:active{background-color:var(--scrollbar-thumb-active)}
 :where(.horizontal-scroll-region,.math-plate,.mini-formula,.source-table-scroll,.continuity-layers,.c3-axis)::-webkit-scrollbar-corner{background:transparent}
 :where(.horizontal-scroll-region,.source-table-scroll):focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+/* Range controls are tactile lab instruments, not browser scrollbars. */
+input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;min-height:44px;height:44px;margin:0;padding:0;background:transparent;cursor:ew-resize;accent-color:var(--primary)}
+input[type="range"]::-webkit-slider-runnable-track{height:6px;background:var(--surface-muted);border:1px solid var(--border);border-radius:999px!important}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin-top:-8px;background:var(--primary);border:3px solid var(--surface-raised);border-radius:50%!important;box-shadow:0 0 0 1px var(--primary);transition:background-color .12s ease,box-shadow .12s ease}
+input[type="range"]:hover::-webkit-slider-thumb{box-shadow:0 0 0 1px var(--primary),0 0 0 5px var(--viz-primary-soft)}
+input[type="range"]:focus-visible{outline:none}
+input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--surface-raised),0 0 0 6px var(--focus)}
+input[type="range"]:active::-webkit-slider-thumb{background:color-mix(in srgb,var(--primary) 78%,var(--text))}
+input[type="range"]::-moz-range-track{height:4px;background:var(--surface-muted);border:1px solid var(--border);border-radius:999px!important}
+input[type="range"]::-moz-range-progress{height:6px;background:var(--primary);border-radius:999px!important}
+input[type="range"]::-moz-range-thumb{width:16px;height:16px;background:var(--primary);border:3px solid var(--surface-raised);border-radius:50%!important;box-shadow:0 0 0 1px var(--primary);transition:background-color .12s ease,box-shadow .12s ease}
+input[type="range"]:hover::-moz-range-thumb{box-shadow:0 0 0 1px var(--primary),0 0 0 5px var(--viz-primary-soft)}
+input[type="range"]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px var(--surface-raised),0 0 0 6px var(--focus)}
+input[type="range"]:active::-moz-range-thumb{background:color-mix(in srgb,var(--primary) 78%,var(--text))}
+input[type="range"]:disabled{cursor:not-allowed;opacity:.5}
 
 /* Proof worksheet replaces order guessing with explicit writing and self-review. */
 .proof-workbook{display:grid;gap:22px}

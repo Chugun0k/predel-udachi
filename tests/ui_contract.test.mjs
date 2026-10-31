@@ -137,6 +137,17 @@ test('activity surfaces are mapped to semantic theme tokens',()=>{
  assert.match(css,/\.proof-workbook textarea\{[\s\S]*?background:var\(--surface-raised\)/);
 });
 
+test('lab range controls have a complete theme-aware interaction treatment',()=>{
+ assert.match(css,/input\[type="range"\]\{-webkit-appearance:none;appearance:none/);
+ assert.match(css,/input\[type="range"\]::-webkit-slider-runnable-track\{height:6px;background:var\(--surface-muted\)/);
+ assert.match(css,/input\[type="range"\]::-webkit-slider-thumb\{[\s\S]*?width:22px;height:22px[\s\S]*?background:var\(--primary\)/);
+ assert.match(css,/input\[type="range"\]:focus-visible::-webkit-slider-thumb\{[\s\S]*?var\(--focus\)/);
+ assert.match(css,/input\[type="range"\]::-moz-range-progress\{height:6px;background:var\(--primary\)/);
+ assert.match(css,/input\[type="range"\]:focus-visible::-moz-range-thumb\{[\s\S]*?var\(--focus\)/);
+ assert.doesNotMatch(css,/input\[type="range"\]::-webkit-slider-thumb\{border-radius:0/);
+ assert.doesNotMatch(css,/input\[type="range"\]::-moz-range-thumb\{border-radius:0/);
+});
+
 test('bundled Cyrillic font assets exist for offline standalone builds',()=>{
  for(const file of ['NotoSans-Regular.ttf','NotoSans-Bold.ttf','NotoSerif-Regular.ttf','NotoSerif-Bold.ttf']){
   assert.equal(existsSync(new URL(`../src/fonts/${file}`,import.meta.url)),true,file);

@@ -78,6 +78,10 @@ try{
  assert.notEqual(await page.locator('.sim-svg [stroke="#4258d4"]').evaluate(el=>getComputedStyle(el).stroke),'rgb(66, 88, 212)','SVG kept its light-only stroke');
  await page.locator('[data-predict="edges"]').click();
  const slider=page.locator('[data-exp="selfP"]');
+ const rangeGeometry=await slider.evaluate(el=>({height:getComputedStyle(el).height,appearance:getComputedStyle(el).appearance}));
+ assert.deepEqual(rangeGeometry,{height:'44px',appearance:'none'},'range control fell back to browser-default input styling');
+ await slider.focus();
+ await page.locator('.control-row').last().screenshot({path:join(output,'range-control-dark.png')});
  await slider.scrollIntoViewIfNeeded();
  await slider.evaluate(el=>window.__draggedRange=el);
  const label=page.locator('label[for="selfRange"]');
@@ -115,6 +119,15 @@ try{
  assert.equal(await page.locator('#answerInput').inputValue(),'','retry did not clear the revealed answer');
  assert.equal(await page.locator('#answerInput').getAttribute('readonly'),null,'retry kept the field readonly');
  await page.close();
+
+ const lightRangePage=await openAt(390,844,'light');
+ await lightRangePage.locator('[data-advance]').click();
+ const lightRange=lightRangePage.locator('[data-exp="selfP"]');
+ await lightRange.focus();
+ const lightRangeBox=await lightRange.boundingBox();
+ assert.ok(lightRangeBox&&lightRangeBox.width<=358&&lightRangeBox.height===44,'light-theme phone range is clipped');
+ await lightRangePage.locator('.control-row').last().screenshot({path:join(output,'range-control-phone-light.png')});
+ await lightRangePage.close();
 
  const proofPage=await openAt(1440,960,'dark','S03-Q02');
  await proofPage.evaluate(()=>localStorage.setItem('probquest-academy-v2',JSON.stringify({
